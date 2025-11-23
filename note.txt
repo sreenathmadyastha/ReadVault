@@ -1,0 +1,56 @@
+curl 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://vault.azure.net'
+ -H Metadata:true.
+
+ https://www.reddit.com/r/csharp/comments/grqraa/resolution_to_credentialunavailableexception/
+
+
+ curl -H "Metadata: true" \
+    "$IDENTITY_ENDPOINT?resource=https://vault.azure.net&api-version=2019-08-01&client_id=<UAMI-ID>"
+
+In fact, for Container Apps, DefaultAzureCredential is recommended over ManagedIdentityCredential because it gracefully handles:
+Local development
+Azure deployment
+UAMI identity selection
+IMDS/MSI quirks    
+
+This means:
+
+The ACA environment cannot reach the IMDS endpoint.
+That breaks ManagedIdentityCredential (because it only talks to IMDS).
+But DefaultAzureCredential contains fallback logic.
+
+Inside Container Apps, DefaultAzureCredential will try the following in order:
+
+EnvironmentCredential
+ManagedIdentityCredential (with your clientId)
+If ACA injects IDENTIRY_ENDPOINT properly → MSI succeeds
+If ACA environment temporarily has issues → fallback paths still allow a token
+
+
+This code is 100% correct inside Container Apps using UAMI:
+
+var credential = new DefaultAzureCredential(
+    new DefaultAzureCredentialOptions
+    {
+        ManagedIdentityClientId = uamiClientId
+    });
+
+Benefits:
+✔ Works locally using az login
+✔ Works inside ACA using your User Assigned Identity
+✔ No need to hardcode ManagedIdentityCredential
+✔ Handles retries and MSI endpoint issues better
+✔ Microsoft recommends this pattern
+✔ Example Usage in Container Apps (UAMI + Key Vault)
+var credential = new DefaultAzureCredential(
+    new DefaultAzureCredentialOptions
+    {
+        ManagedIdentityClientId = "<UAMI client ID>"
+    });
+
+var secretClient = new SecretClient(
+    new Uri("https://<vault-name>.vault.azure.net"),
+    credential);
+
+var result = await secretClient.GetSecretAsync("MySecret");
+Console.WriteLine(result.Value.Value);
