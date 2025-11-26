@@ -54,3 +54,9 @@ var secretClient = new SecretClient(
 
 var result = await secretClient.GetSecretAsync("MySecret");
 Console.WriteLine(result.Value.Value);
+
+Vault Objects
+- Secrets
+- Keys
+- Certificates
+File, Format Version 12.00  

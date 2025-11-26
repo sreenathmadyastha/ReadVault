@@ -9,14 +9,14 @@ class Program
 {
     static async Task Main(string[] args)
     {
-        string keyVaultUrl = "https://mystandard.vault.azure.net/";
+        string keyVaultUrl = "https://cfcstandard.vault.azure.net/";
         string secretName = "mySecret";
-        string keyName = "YourKey";
+        string keyName = "CFCKey";
 
         // Replace with your UAMI Client ID
-        string uamiClientId = "uami-test";
+        string uamiClientId = "insights-test";
 
-        // var credential = new ManagedIdentityCredential();
+        // var credential = new ManagedIdentityCredential(clientId: uamiClientId);
         var credential = new DefaultAzureCredential(
                         new DefaultAzureCredentialOptions
                         {
