@@ -1,0 +1,14 @@
+Ping Notes:
+Authority should be your Ping issuer (e.g., https://your-ping-domain.com/as/openauthnserver for 
+PingFederate or https://auth.pingone.com/<env-id>/as for PingOne). This triggers OIDC discovery to fetch the JWKS URI
+ (e.g., https://your-ping-domain.com/as/issuer1/jwks).
+If using introspection (for opaque tokens), set options.ConfigurationManager = new ConfigurationManager<OpenIdConnectConfiguration>
+(new Uri("https://your-ping/introspect-endpoint"), ...) and handle client credentials from AKV.
+
+Test JWKS: Visit Ping's JWKS endpoint in a browser to confirm public keys (JSON array of RSA keys).
+
+AKV Notes:
+Ensure your app's Managed Identity has Get permission on the key (not secret—use Keys API for RSA).
+Key type: Create an RSA key in AKV (2048+ bits, exportable private key).
+Rotation: AKV handles versioning; update GetKeyAsync to use latest version if needed (e.g., GetKeyAsync("key-name", version: null)).
+Error Handling: Wrap in try-catch for RequestFailedException (e.g., key not found, auth failed).

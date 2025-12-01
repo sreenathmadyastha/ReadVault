@@ -1,0 +1,40 @@
+function CloverBanner() {
+  const [connected, setConnected] = useState(null); // null = still checking
+
+  useEffect(() => {
+    fetch('/api/clover/connection-status', { credentials: 'include' })
+      .then(r => r.json())
+      .then(data => setConnected(data.connected))
+      .catch(() => setConnected(false));
+  }, []);
+
+  const cloverOAuthUrl = "https://www.clover.com/oauth/authorize?client_id=YOUR_APP_ID&redirect_uri=" + 
+                        encodeURIComponent("https://yourapp.com/clover-callback");
+
+  if (connected === null) return <div>Loading...</div>;
+
+  return (
+    <div className="clover-banner">
+      {connected ? (
+        <span style={{color: 'green'}}>Connected to Clover</span>
+      ) : (
+        <a href={cloverOAuthUrl} className="btn btn-warning">
+          Reconnect to Clover
+        </a>
+      )}
+    </div>
+  );
+}
+
+
+your use case is very clear now:
+
+You use Clover OAuth only to verify which merchant(s) the user owns/is authorized for.
+You store the access_token + merchant_id in your DB.
+
+All actual data (settled transactions, authorizations, inventory, etc.) is pulled 
+via your backend using that stored access token.
+
+You want to automatically detect when that access token is no longer valid for that merchant 
+(revoked, employee deleted, permissions changed, etc.) 
+and immediately show “Reconnect to Clover” instead of “Connected”.

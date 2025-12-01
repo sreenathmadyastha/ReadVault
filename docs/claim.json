@@ -1,0 +1,7 @@
+{
+  "sub": "user123",
+  "subscriberId": "sub-456",
+  "sponsorId": "spon-789",
+  "businessUserId": "biz-101",
+  "permissions": ["moneyIn:Read", "moneyOut:Write"]
+}
