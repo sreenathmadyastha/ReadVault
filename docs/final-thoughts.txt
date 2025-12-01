@@ -1,0 +1,21 @@
+ssuerSigningKeys not required for incoming bearer token, only for creating new token I need.
+I receive product bearer token from different application and then I create my own bearer token out of the claiums from 
+product bearer token
+
+Explanation:
+=====================
+Updated JWT Flow: Validate Product Token (No Signing Keys), Sign New Token from Claims
+
+Based on your clarification, your app receives a "product bearer token" (from another application/corporate provider) 
+for validation—no IssuerSigningKeys needed here since you're using introspection (or JWKS/cache) to extract claims like subscriberId, 
+sponsorId, etc. Once validated, you create a new bearer token signed with your RSA key (from AKV/local), embedding those claims. 
+This is a classic token exchange pattern.
+The custom handler from my previous response handles validation without any signing keys. Below, I'll highlight the relevant updates:
+
+Validation: Custom handler introspects the product token, caches claims—no IssuerSigningKeys.
+New Token Creation: In a dedicated endpoint (e.g., /exchange), use the validated this.User claims to sign the new token.
+AKV Temp Bypass: Included as before for testing.
+
+1. Program.cs: Validation-Only Config (No Signing Keys)
+No changes to TokenValidationParameters—keep ValidateIssuerSigningKey = true if using JWKS fallback, but it's optional with introspection. 
+Register RSA only for signing.
